@@ -1,12 +1,9 @@
 import React from 'react'
 
-function PageFilter({setFilterType, filterActions}) {
+function PageFilter({filterActions}) {
 
     function onChangeType(synthEvent){
         filterActions(synthEvent)
-        // setFilterType( synthEvent.target.value)
-        // //filterActions()
-        // console.log(synthEvent.target.value)
     }
 
     return (

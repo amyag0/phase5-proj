@@ -1,5 +1,5 @@
 class PostSerializer < ActiveModel::Serializer
-  attributes :id, :publisher, :publisher_id, :post_type, :title, :img_url, :content,  :likes, :users_who_saved
+  attributes :id, :publisher, :publisher_id, :post_type, :title, :img_url, :content,  :likes, :users_who_saved, :users_who_liked
   has_many :comments
   #has_many :post_likes
 
@@ -26,6 +26,19 @@ class PostSerializer < ActiveModel::Serializer
       array_of_users_who_saved<<each_save_user_item
     end
     array_of_users_who_saved
+  end
+
+  def users_who_liked
+    array_of_users_who_liked=[]
+
+    object.post_likes.each do |each_like|
+      each_like_obj = {
+        like_id: each_like.id,
+        user_id: each_like.user.id
+      }
+      array_of_users_who_liked<<each_like_obj
+    end
+    array_of_users_who_liked
   end
 
 

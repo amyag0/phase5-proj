@@ -67,9 +67,7 @@ function PostsList({savedPosts, setSavedPosts, likeInstances, setLikeInstances, 
     }
     
     const mappingOfOurPosts = postsFromFilter.map((eachPost)=>{
-        //console.log(eachPost)
         if(eachPost.publisher_id==loggedInUser.id){
-            
             return(
                 <div key={eachPost.id} className="post-mapped-from-list">
                     <Post
@@ -86,7 +84,6 @@ function PostsList({savedPosts, setSavedPosts, likeInstances, setLikeInstances, 
                 </div>
             )
         }else{
-    
             return(
                 <Post
                 key={eachPost.id}
@@ -104,12 +101,9 @@ function PostsList({savedPosts, setSavedPosts, likeInstances, setLikeInstances, 
     
     return (
         <div className='post-list'>
-            
             <PageFilter
-                //setFilterType={setFilterType}
                 filterActions={filterActions}
             />
-
             {mappingOfOurPosts}
         </div>
     )

@@ -5,7 +5,7 @@ import PostPage from './PostPage'
 
 import {BrowserRouter, Route, Routes,} from 'react-router-dom'
 
-function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstances, loggedInUser, loggedInUserId}) {
+function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstances, loggedInUserId}) {
 
     const [postLiked, setPostLiked]=useState(false)
     const [postSaved, setPostSaved]=useState(false)

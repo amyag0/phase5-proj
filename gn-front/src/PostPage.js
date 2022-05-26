@@ -9,26 +9,14 @@ function PostPage({loggedInUser, savedPosts, setSavedPosts, likeInstances, setLi
 
   const [thePost, setThePost] = useState({})
   const [usersWhoSaved, setUsersWhoSaved] = useState([])
+  const [usersWhoLiked, setUsersWhoLiked] = useState([])
   const [comments, setComments] = useState([])
   const [postLiked, setPostLiked]=useState(false)
   const [postSavedByUser, setPostSavedByUser]=useState(false)
 
 
-  console.log("usersWhoSaved",usersWhoSaved)
+  //console.log("usersWhoSaved",usersWhoSaved)
 
-  function mappingToDetermineSavedButton(){
-    console.log("usersWhoSaved",usersWhoSaved)
-    console.log("inside mapping to determine")
-    if(usersWhoSaved.length>=1 ){
-      usersWhoSaved.map((eachUser)=>{
-        console.log("each saved of this specific post",eachUser)
-        console.log("their id",eachUser.user_id)
-        if(eachUser.user_id==loggedInUser.id){
-          setPostSavedByUser(true)
-        }
-      })
-    }
-  }
 
 
   useEffect(()=>{
@@ -39,12 +27,22 @@ function PostPage({loggedInUser, savedPosts, setSavedPosts, likeInstances, setLi
       setThePost(thePostViewing)
       setComments(thePostViewing.comments)
       setUsersWhoSaved(thePostViewing.users_who_saved)
+      setUsersWhoLiked(thePostViewing.users_who_liked)
       if(thePostViewing.users_who_saved.length>=1 ){
         thePostViewing.users_who_saved.map((eachUser)=>{
-          console.log("each saved of this specific post",thePostViewing.users_who_saved)
-          console.log("their id",thePostViewing.users_who_saved.user_id)
+          // console.log("each saved of this specific post",thePostViewing.users_who_saved)
+          // console.log("their id",thePostViewing.users_who_saved.user_id)
           if(eachUser.user_id==loggedInUserId){
             setPostSavedByUser(true)
+          }
+        })
+      }
+      if(thePostViewing.users_who_liked.length>=1 ){
+        thePostViewing.users_who_liked.map((eachUser)=>{
+          console.log("each like of this specific post",thePostViewing.users_who_liked)
+          console.log("their id",thePostViewing.users_who_liked.user_id)
+          if(eachUser.user_id==loggedInUserId){
+            setPostLiked(true)
           }
         })
       }
