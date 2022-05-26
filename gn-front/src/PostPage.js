@@ -3,53 +3,100 @@ import { useState, useEffect } from 'react'
 import {useParams, Outlet, Link} from 'react-router-dom'
 
 function PostPage({loggedInUser, savedPosts, setSavedPosts, likeInstances, setLikeInstances, loggedInUserId}) {
-  // postSaved, setPostSaved, postLiked, setPostLiked
+  // postSavedByUser, setPostSavedByUser, postLiked, setPostLiked
 
   const { post_id } = useParams()
 
   const [thePost, setThePost] = useState({})
+  const [usersWhoSaved, setUsersWhoSaved] = useState([])
   const [comments, setComments] = useState([])
   const [postLiked, setPostLiked]=useState(false)
-  const [postSaved, setPostSaved]=useState(false)
+  const [postSavedByUser, setPostSavedByUser]=useState(false)
+
+
+  console.log("usersWhoSaved",usersWhoSaved)
+
+  function mappingToDetermineSavedButton(){
+    console.log("usersWhoSaved",usersWhoSaved)
+    console.log("inside mapping to determine")
+    if(usersWhoSaved.length>=1 ){
+      usersWhoSaved.map((eachUser)=>{
+        console.log("each saved of this specific post",eachUser)
+        console.log("their id",eachUser.user_id)
+        if(eachUser.user_id==loggedInUser.id){
+          setPostSavedByUser(true)
+        }
+      })
+    }
+  }
 
 
   useEffect(()=>{
     fetch(`/posts/${post_id}`)
     .then(response=>response.json())
     .then(thePostViewing=>{
-    //console.log(thePostViewing)
+    console.log(thePostViewing)
       setThePost(thePostViewing)
       setComments(thePostViewing.comments)
+      setUsersWhoSaved(thePostViewing.users_who_saved)
+      if(thePostViewing.users_who_saved.length>=1 ){
+        thePostViewing.users_who_saved.map((eachUser)=>{
+          console.log("each saved of this specific post",thePostViewing.users_who_saved)
+          console.log("their id",thePostViewing.users_who_saved.user_id)
+          if(eachUser.user_id==loggedInUserId){
+            setPostSavedByUser(true)
+          }
+        })
+      }
+
     })
 
-          likeInstances.map((eachLikeInstance)=>{
-            if(eachLikeInstance.post.id===thePost.id){
-                return(
-                    setPostLiked(true)
-                )
-            }else{
-                return(
-                    setPostLiked(false)
-                )
-            }
-        })
+    //   likeInstances.map((eachLikeInstance)=>{
+    //   if(eachLikeInstance.post.id===thePost.id){
+    //     return(
+    //       setPostLiked(true)
+    //     )
+    //   }
+    // })
 
-        savedPosts.map((eachSavedPost)=>{
-            if(eachSavedPost.post_id===thePost.id){
-                return(
-                    setPostSaved(true)
-                    )
-            }
-        })
+
+
+    // const mappingToDetermineSavedButton=()=>{
+    //   if(usersWhoSaved.length>=1){
+    //     usersWhoSaved.map((eachUser)=>{
+    //       console.log("each saved of this specific post",eachUser)
+    //       console.log("their id",eachUser.id)
+    //       if(eachUser.user_id==loggedInUser.id){
+    //         setPostSavedByUser(true)
+    //       }
+    //     })
+    //   }
+    // }
+
+      
+
+    // usersWhoSaved.map((eachUser)=>{
+    //   if(eachUser.user_id==loggedInUser.id){
+    //     return(
+    //       setPostSavedByUser(true)
+    //     )
+    //   }
+    // })
 
 
   }, [])
-  console.log(comments)
+  //console.log(comments)
+  console.log("posts saved instances:", usersWhoSaved)
+  console.log("state of saved", postSavedByUser)
+  console.log("logged in id:", loggedInUser.id)
+
+  //mappingToDetermineSavedButton()
+
 
   
   const mappingOfComments = comments.map((eachComment)=>{
     if(eachComment.commenter_id==loggedInUser.id){
-      console.log("belongs to logged in user")
+      //console.log("belongs to logged in user")
       return(
         <div key={eachComment.id}>
           <p>{eachComment.commenter_id}</p>
@@ -67,6 +114,9 @@ function PostPage({loggedInUser, savedPosts, setSavedPosts, likeInstances, setLi
       )
     }
   })
+
+
+
 
 
 
@@ -104,13 +154,13 @@ function PostPage({loggedInUser, savedPosts, setSavedPosts, likeInstances, setLi
     fetch(`/saved_posts`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({post_id:thePost.id})
+        body: JSON.stringify({post_id: thePost.id})
         }
     )
     .then(response=>response.json())
     .then(theSaveInstance=>{
         console.log("afterfetchfromclick:",theSaveInstance)
-        setPostSaved(true)
+        setPostSavedByUser(true)
         fetch(`/user/${loggedInUser.id}/saved`)
         .then(response=>response.json())
         .then(response=>{
@@ -123,48 +173,73 @@ function PostPage({loggedInUser, savedPosts, setSavedPosts, likeInstances, setLi
         
     }
     )
-}
+  }
 
-const onPostUnSave=(synthEvent)=>{
+  const onPostUnSave=(synthEvent)=>{
     console.log(synthEvent.target.value)
     fetch(`/saved_posts/${synthEvent.target.value}`, {method:'DELETE'})
     .then(response=>response.json())
     .then(message=>{
-        console.log(message)
-        setPostSaved(false)
-        fetch(`/user/${loggedInUser.id}/saved`)
-        .then(response=>response.json())
-        .then(response=>{
-            console.log("response",response)
-            if(!response.error){
-            setSavedPosts(response)
-            }
-        })
+      console.log(message)
+      setPostSavedByUser(false)
+      fetch(`/user/${loggedInUser.id}/saved`)
+      .then(response=>response.json())
+      .then(response=>{
+        console.log("response",response)
+        if(!response.error){
+        setSavedPosts(response)
+        }
+      })
     })
-}
+  }
+
+  // const mappingToDetermineSavedButton=()=>{
+  //   if(usersWhoSaved.length>=1){
+  //     usersWhoSaved.map((eachUser)=>{
+  //       if(eachUser.user_id==loggedInUser.id){
+  //         setPostSavedByUser(true)
+  //         // return(
+  //         //   <button onClick={onPostUnSave} value={eachUser.save_id} key={eachUser.save_id}> ★ </button>
+  //         // )
+  //   //     }else{
+  //   //       // return(
+  //   //       //   <button onClick={onPostSave} > ☆ </button>
+  //   //       // )
+  //   //     }
+  //   //   })
+  //   // }else{
+  //   //   setPostSavedByUser(false)
+  //     // return(
+  //     //   <button onClick={onPostSave} > ☆ </button>
+  //     // )
+  //   }
+  
+  //   })}}
+
 
 
   return (
     <div>
 
         {
-        postSaved===true?
+          //mappingToDetermineSavedButton(),
+          postSavedByUser===true?
 
 
-        savedPosts.map((eachSavedPost)=>{
-            if(eachSavedPost.post_id===thePost.id){
-                return(
-                    <button onClick={onPostUnSave} value={eachSavedPost.id} key={eachSavedPost.id}> ★ </button>
-                    
-                )
-            }
-        })
+        usersWhoSaved.map((eachUser)=>{
+        if(eachUser.user_id==loggedInUser.id){
+          //setPostSavedByUser(true)
+          return(
+            <button onClick={onPostUnSave} value={eachUser.save_id} key={eachUser.save_id}> ★ </button>
+          )}})
         
 
         :
 
         <button onClick={onPostSave} > ☆ </button>
         }
+
+        
 
       <h4>{thePost.title}</h4>
       <br/>

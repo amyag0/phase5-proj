@@ -13,10 +13,12 @@ class SavedPostsController < ApplicationController
     end
     
     def create
+        # byebug
         logged_in_user=User.find_by(id: session[:user_id])
+        # byebug
         if logged_in_user
             new_saved_post=logged_in_user.saved_posts.create(saved_post_create_params)
-        # new_saved_post= saved_post.create(saved_post_create_params)
+        # byebug
             if new_saved_post.valid?
                 render json: new_saved_post
             else

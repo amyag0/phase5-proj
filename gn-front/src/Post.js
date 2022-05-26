@@ -5,7 +5,7 @@ import PostPage from './PostPage'
 
 import {BrowserRouter, Route, Routes,} from 'react-router-dom'
 
-function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstances, loggedInUser}) {
+function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstances, loggedInUser, loggedInUserId}) {
 
     const [postLiked, setPostLiked]=useState(false)
     const [postSaved, setPostSaved]=useState(false)
@@ -23,7 +23,7 @@ function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstan
             if(eachSavedPost.post_id===eachPost.id){
                 return(
                     setPostSaved(true)
-                    )
+                )
             }
         })
     }, [])
@@ -43,18 +43,16 @@ function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstan
         .then(theSaveInstance=>{
             console.log("afterfetchfromclick:",theSaveInstance)
             //setPostSaved(true)
-            fetch(`/user/${loggedInUser.id}/saved`)
+            fetch(`/user/${loggedInUserId}/saved`)
             .then(response=>response.json())
             .then(response=>{
             console.log("response",response)
-            if(!response.error){
-                setSavedPosts(response)
-                }
+                if(!response.error){
+                    setSavedPosts(response)
+                    }
                 }
             )
-            
-        }
-        )
+        })
     }
 
     const onPostUnSave=(synthEvent)=>{
@@ -65,7 +63,7 @@ function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstan
         .then(message=>{
             console.log(message)
             //setPostSaved(false)
-            fetch(`/user/${loggedInUser.id}/saved`)
+            fetch(`/user/${loggedInUserId}/saved`)
             .then(response=>response.json())
             .then(response=>{
                 console.log("response",response)
@@ -75,6 +73,7 @@ function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstan
             })
         })
     }
+    
 
 
 
@@ -83,51 +82,25 @@ function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstan
         <div className='post'>
 
 
-        {/* <Routes>
-            <Route path="/posts/:post_id" element={
-                <PostPage
-                    postSaved={postSaved}
-                    setPostSaved={setPostSaved}
-                    postLiked={postLiked}
-                    setPostLiked={setPostLiked}
-
-                // <Route path="/posts/:post_id" element={
-                //     <PostPage
-                //       savedPosts={savedPosts}
-                //       setSavedPosts={setSavedPosts}
-                //       loggedInUser={loggedInUser}
-                //       likeInstances={likeInstances}
-                //       setLikeInstances={setLikeInstances}
-                //       loggedInUserId={loggedInUser.id}
-                //       savedPosts={savedPosts}
-                //       setSavedPosts={setSavedPosts}
-                //     />
-                //   }/>
-                />
-            }/>
-            
-        </Routes>
-            <Outlet/> */}
-
-
-
             {
-            postSaved===true?
+                postSaved===true
+
+            ?
 
 
-            savedPosts.map((eachSavedPost)=>{
-                if(eachSavedPost.post_id===eachPost.id){
-                    return(
-                        <button onClick={onPostUnSave} value={eachSavedPost.id} key={eachSavedPost.id}> ★ </button>
-                        
-                    )
-                }
-            })
-            //<button> ★ </button>
+                savedPosts.map((eachSavedPost)=>{
+                    if(eachSavedPost.post_id===eachPost.id){
+                        return(
+                            <button onClick={onPostUnSave} value={eachSavedPost.id} key={eachSavedPost.id}> ★ </button>
+                            
+                        )
+                    }
+                })
+            
 
             :
 
-            <button onClick={onPostSave} > ☆ </button>
+                <button onClick={onPostSave} > ☆ </button>
             }
 
             <h4>{eachPost.title}</h4>

@@ -3,10 +3,10 @@ import React from 'react'
 function PageFilter({setFilterType, filterActions}) {
 
     function onChangeType(synthEvent){
-        filterActions()
-        setFilterType( synthEvent.target.value)
-        //filterActions()
-        console.log(synthEvent.target.value)
+        filterActions(synthEvent)
+        // setFilterType( synthEvent.target.value)
+        // //filterActions()
+        // console.log(synthEvent.target.value)
     }
 
     return (

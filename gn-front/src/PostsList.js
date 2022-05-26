@@ -5,7 +5,7 @@ import Post from './Post'
 import {Link} from 'react-router-dom'
 
 
-function PostsList({savedPosts, setSavedPosts, likeInstances, setLikeInstances, loggedInUser}) {
+function PostsList({savedPosts, setSavedPosts, likeInstances, setLikeInstances, loggedInUser, loggedInUserId}) {
     
     const [allPosts, setAllPosts]= useState([])
     const [postsFromFilter, setPostsFromFilter]=useState([])
@@ -19,9 +19,9 @@ function PostsList({savedPosts, setSavedPosts, likeInstances, setLikeInstances, 
         })
     }, [])
     
-    const [filterType, setFilterType]= useState("all")
-    function filterActions(){
-        if(filterType==="announcement"){
+    //const [filterType, setFilterType]= useState("all")
+    function filterActions(synthEvent){
+        if(synthEvent.target.value==="announcement"){
             const filterOfPosts = allPosts.filter ( (postItem)=>{
                 return postItem.post_type.includes("announcement")
                 }
@@ -29,7 +29,7 @@ function PostsList({savedPosts, setSavedPosts, likeInstances, setLikeInstances, 
             const arrayOfAnnouncements = filterOfPosts;
             setPostsFromFilter(arrayOfAnnouncements)
 
-        }else if(filterType==="barter"){
+        }else if(synthEvent.target.value==="barter"){
             const filterOfPosts = allPosts.filter ( (postItem)=>{
                 return postItem.post_type.includes("barter")
                 }
@@ -37,7 +37,7 @@ function PostsList({savedPosts, setSavedPosts, likeInstances, setLikeInstances, 
             const arrayOfBarters = filterOfPosts;
             setPostsFromFilter(arrayOfBarters)
 
-        }else if(filterType==="giveaway"){
+        }else if(synthEvent.target.value==="giveaway"){
             const filterOfPosts = allPosts.filter ( (postItem)=>{
                 return postItem.post_type.includes("giveaway")
                 }
@@ -45,7 +45,7 @@ function PostsList({savedPosts, setSavedPosts, likeInstances, setLikeInstances, 
             const arrayOfGiveAways = filterOfPosts;
             setPostsFromFilter(arrayOfGiveAways)
 
-        }else if(filterType==="sale"){
+        }else if(synthEvent.target.value==="sale"){
             const filterOfPosts = allPosts.filter ( (postItem)=>{
                 return postItem.post_type.includes("sale")
                 }
@@ -53,21 +53,23 @@ function PostsList({savedPosts, setSavedPosts, likeInstances, setLikeInstances, 
             const arrayOfSales = filterOfPosts;
             setPostsFromFilter(arrayOfSales)
 
-        }else if(filterType==="tip"){
+        }else if(synthEvent.target.value==="tip"){
             const filterOfPosts = allPosts.filter ( (postItem)=>{
                 return postItem.post_type.includes("tip")
                 }
             )
             const arrayOfTips = filterOfPosts;
             setPostsFromFilter(arrayOfTips)
-        }else if(filterType==="all"){
+        }else if(synthEvent.target.value==="all"){
             // const arrayOfAllPosts = [...allPosts]
             setPostsFromFilter(allPosts)
         }
     }
     
     const mappingOfOurPosts = postsFromFilter.map((eachPost)=>{
+        //console.log(eachPost)
         if(eachPost.publisher_id==loggedInUser.id){
+            
             return(
                 <div key={eachPost.id} className="post-mapped-from-list">
                     <Post
@@ -75,7 +77,7 @@ function PostsList({savedPosts, setSavedPosts, likeInstances, setLikeInstances, 
                     eachPost={eachPost}
                     likeInstances={likeInstances}
                     setLikeInstances={setLikeInstances}
-                    loggedInUserId={loggedInUser.id}
+                    loggedInUserId={loggedInUserId}
                     savedPosts={savedPosts}
                     setSavedPosts={setSavedPosts}
 
@@ -93,6 +95,7 @@ function PostsList({savedPosts, setSavedPosts, likeInstances, setLikeInstances, 
                 setLikeInstances={setLikeInstances}
                 savedPosts={savedPosts}
                 setSavedPosts={setSavedPosts}
+                loggedInUserId={loggedInUserId}
                 />
             )
         }        
@@ -103,7 +106,7 @@ function PostsList({savedPosts, setSavedPosts, likeInstances, setLikeInstances, 
         <div className='post-list'>
             
             <PageFilter
-                setFilterType={setFilterType}
+                //setFilterType={setFilterType}
                 filterActions={filterActions}
             />
 

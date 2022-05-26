@@ -135,6 +135,7 @@ function App() {
                   loggedInUser={loggedInUser}
                   likeInstances={likeInstances}
                   setLikeInstances={setLikeInstances}
+                  loggedInUserId={loggedInUser.id}
                   />
                 }/>
 
