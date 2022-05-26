@@ -1,11 +1,12 @@
 import React from 'react'
 import {useEffect, useState} from 'react'
-import {Link} from 'react-router-dom'
+import {Link, Outlet} from 'react-router-dom'
+import PostPage from './PostPage'
 
-function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstances}) {
+import {BrowserRouter, Route, Routes,} from 'react-router-dom'
 
-    
-    
+function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstances, loggedInUser}) {
+
     const [postLiked, setPostLiked]=useState(false)
     const [postSaved, setPostSaved]=useState(false)
 
@@ -15,10 +16,6 @@ function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstan
                 return(
                     setPostLiked(true)
                 )
-            }else{
-                return(
-                    setPostLiked(false)
-                )
             }
         })
 
@@ -26,16 +23,16 @@ function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstan
             if(eachSavedPost.post_id===eachPost.id){
                 return(
                     setPostSaved(true)
-                    
-
                     )
             }
         })
     }, [])
     
+    
 
 
     const onPostSave=(synthEvent)=>{
+        setPostSaved(true)
         fetch(`/saved_posts`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
@@ -44,26 +41,39 @@ function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstan
         )
         .then(response=>response.json())
         .then(theSaveInstance=>{
-            console.log(theSaveInstance)
-            //setSavedPosts(...savedPosts, theSaveInstance)
-            setPostSaved(true)
+            console.log("afterfetchfromclick:",theSaveInstance)
+            //setPostSaved(true)
+            fetch(`/user/${loggedInUser.id}/saved`)
+            .then(response=>response.json())
+            .then(response=>{
+            console.log("response",response)
+            if(!response.error){
+                setSavedPosts(response)
+                }
+                }
+            )
             
         }
         )
     }
 
     const onPostUnSave=(synthEvent)=>{
-        //console.log(synthEvent.target.value)
-        // fetch(`/saved_posts/${}`, {method:'DELETE'})
-        // .then(response=>response.json())
-        // .then(message=>{
-        //     console.log(message)
-        //     fetch("/userInSession")
-        //     .then(response=>response.json())
-        //     .then(userAlreadyLoggedIn=>{
-        //         setPublishedPosts(userAlreadyLoggedIn.published)
-        //     })
-        // })
+        setPostSaved(false)
+        console.log(synthEvent.target.value)
+        fetch(`/saved_posts/${synthEvent.target.value}`, {method:'DELETE'})
+        .then(response=>response.json())
+        .then(message=>{
+            console.log(message)
+            //setPostSaved(false)
+            fetch(`/user/${loggedInUser.id}/saved`)
+            .then(response=>response.json())
+            .then(response=>{
+                console.log("response",response)
+                if(!response.error){
+                setSavedPosts(response)
+                }
+            })
+        })
     }
 
 
@@ -71,10 +81,49 @@ function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstan
     
     return (
         <div className='post'>
+
+
+        {/* <Routes>
+            <Route path="/posts/:post_id" element={
+                <PostPage
+                    postSaved={postSaved}
+                    setPostSaved={setPostSaved}
+                    postLiked={postLiked}
+                    setPostLiked={setPostLiked}
+
+                // <Route path="/posts/:post_id" element={
+                //     <PostPage
+                //       savedPosts={savedPosts}
+                //       setSavedPosts={setSavedPosts}
+                //       loggedInUser={loggedInUser}
+                //       likeInstances={likeInstances}
+                //       setLikeInstances={setLikeInstances}
+                //       loggedInUserId={loggedInUser.id}
+                //       savedPosts={savedPosts}
+                //       setSavedPosts={setSavedPosts}
+                //     />
+                //   }/>
+                />
+            }/>
+            
+        </Routes>
+            <Outlet/> */}
+
+
+
             {
             postSaved===true?
 
-            <button> ★ </button>
+
+            savedPosts.map((eachSavedPost)=>{
+                if(eachSavedPost.post_id===eachPost.id){
+                    return(
+                        <button onClick={onPostUnSave} value={eachSavedPost.id} key={eachSavedPost.id}> ★ </button>
+                        
+                    )
+                }
+            })
+            //<button> ★ </button>
 
             :
 

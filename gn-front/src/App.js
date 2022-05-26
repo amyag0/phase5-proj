@@ -138,13 +138,16 @@ function App() {
                   />
                 }/>
 
-                <Route path="/posts/:id" element={
+                <Route path="/posts/:post_id" element={
                   <PostPage
                     savedPosts={savedPosts}
                     setSavedPosts={setSavedPosts}
                     loggedInUser={loggedInUser}
                     likeInstances={likeInstances}
                     setLikeInstances={setLikeInstances}
+                    loggedInUserId={loggedInUser.id}
+                    savedPosts={savedPosts}
+                    setSavedPosts={setSavedPosts}
                   />
                 }/>
 

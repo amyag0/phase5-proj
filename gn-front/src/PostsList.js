@@ -75,7 +75,7 @@ function PostsList({savedPosts, setSavedPosts, likeInstances, setLikeInstances, 
                     eachPost={eachPost}
                     likeInstances={likeInstances}
                     setLikeInstances={setLikeInstances}
-                    loggedInUser={loggedInUser}
+                    loggedInUserId={loggedInUser.id}
                     savedPosts={savedPosts}
                     setSavedPosts={setSavedPosts}
 

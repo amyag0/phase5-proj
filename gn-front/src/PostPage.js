@@ -2,23 +2,50 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import {useParams, Outlet, Link} from 'react-router-dom'
 
-function PostPage({loggedInUser}) {
+function PostPage({loggedInUser, savedPosts, setSavedPosts, likeInstances, setLikeInstances, loggedInUserId}) {
+  // postSaved, setPostSaved, postLiked, setPostLiked
 
-  const { id } = useParams()
+  const { post_id } = useParams()
 
   const [thePost, setThePost] = useState({})
   const [comments, setComments] = useState([])
+  const [postLiked, setPostLiked]=useState(false)
+  const [postSaved, setPostSaved]=useState(false)
+
 
   useEffect(()=>{
-    fetch(`/posts/${id}`)
+    fetch(`/posts/${post_id}`)
     .then(response=>response.json())
     .then(thePostViewing=>{
     //console.log(thePostViewing)
       setThePost(thePostViewing)
       setComments(thePostViewing.comments)
     })
+
+          likeInstances.map((eachLikeInstance)=>{
+            if(eachLikeInstance.post.id===thePost.id){
+                return(
+                    setPostLiked(true)
+                )
+            }else{
+                return(
+                    setPostLiked(false)
+                )
+            }
+        })
+
+        savedPosts.map((eachSavedPost)=>{
+            if(eachSavedPost.post_id===thePost.id){
+                return(
+                    setPostSaved(true)
+                    )
+            }
+        })
+
+
   }, [])
   console.log(comments)
+
   
   const mappingOfComments = comments.map((eachComment)=>{
     if(eachComment.commenter_id==loggedInUser.id){
@@ -73,8 +100,71 @@ function PostPage({loggedInUser}) {
   }
 
 
+  const onPostSave=(synthEvent)=>{
+    fetch(`/saved_posts`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({post_id:thePost.id})
+        }
+    )
+    .then(response=>response.json())
+    .then(theSaveInstance=>{
+        console.log("afterfetchfromclick:",theSaveInstance)
+        setPostSaved(true)
+        fetch(`/user/${loggedInUser.id}/saved`)
+        .then(response=>response.json())
+        .then(response=>{
+          console.log("response",response)
+          if(!response.error){
+            setSavedPosts(response)
+          }
+        }
+      )
+        
+    }
+    )
+}
+
+const onPostUnSave=(synthEvent)=>{
+    console.log(synthEvent.target.value)
+    fetch(`/saved_posts/${synthEvent.target.value}`, {method:'DELETE'})
+    .then(response=>response.json())
+    .then(message=>{
+        console.log(message)
+        setPostSaved(false)
+        fetch(`/user/${loggedInUser.id}/saved`)
+        .then(response=>response.json())
+        .then(response=>{
+            console.log("response",response)
+            if(!response.error){
+            setSavedPosts(response)
+            }
+        })
+    })
+}
+
+
   return (
     <div>
+
+        {
+        postSaved===true?
+
+
+        savedPosts.map((eachSavedPost)=>{
+            if(eachSavedPost.post_id===thePost.id){
+                return(
+                    <button onClick={onPostUnSave} value={eachSavedPost.id} key={eachSavedPost.id}> ★ </button>
+                    
+                )
+            }
+        })
+        
+
+        :
+
+        <button onClick={onPostSave} > ☆ </button>
+        }
 
       <h4>{thePost.title}</h4>
       <br/>
@@ -82,6 +172,19 @@ function PostPage({loggedInUser}) {
       <span>Type:{thePost.post_type}</span>
       <br/>
       <span>{thePost.likes} likes</span>
+      
+
+
+
+        {
+        postLiked==true?
+
+        <button> 💚 </button>
+
+        :
+
+        <button> 🤍 </button>
+        }
 
 
 
