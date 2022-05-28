@@ -3,8 +3,6 @@ import { useState, useEffect } from 'react'
 import {useParams, Outlet, Link} from 'react-router-dom'
 
 function PostPage({loggedInUser, savedPosts, setSavedPosts, likeInstances, setLikeInstances, loggedInUserId}) {
-  // postSavedByUser, setPostSavedByUser, postLiked, setPostLiked
-
   const { post_id } = useParams()
 
   const [thePost, setThePost] = useState({})
@@ -13,11 +11,6 @@ function PostPage({loggedInUser, savedPosts, setSavedPosts, likeInstances, setLi
   const [comments, setComments] = useState([])
   const [postLiked, setPostLiked]=useState(false)
   const [postSavedByUser, setPostSavedByUser]=useState(false)
-
-
-  //console.log("usersWhoSaved",usersWhoSaved)
-
-
 
   useEffect(()=>{
     fetch(`/posts/${post_id}`)
@@ -30,18 +23,16 @@ function PostPage({loggedInUser, savedPosts, setSavedPosts, likeInstances, setLi
       setUsersWhoLiked(thePostViewing.users_who_liked)
       if(thePostViewing.users_who_saved.length>=1 ){
         thePostViewing.users_who_saved.map((eachUser)=>{
-          // console.log("each saved of this specific post",thePostViewing.users_who_saved)
-          // console.log("their id",thePostViewing.users_who_saved.user_id)
           if(eachUser.user_id==loggedInUserId){
             setPostSavedByUser(true)
           }
         })
       }
       if(thePostViewing.users_who_liked.length>=1 ){
-        thePostViewing.users_who_liked.map((eachUser)=>{
+        thePostViewing.users_who_liked.map((eachLikeFromFetch)=>{
           console.log("each like of this specific post",thePostViewing.users_who_liked)
-          console.log("their id",thePostViewing.users_who_liked.user_id)
-          if(eachUser.user_id==loggedInUserId){
+          console.log("their id",eachLikeFromFetch.user_id)
+          if(eachLikeFromFetch.user_id==loggedInUserId){
             setPostLiked(true)
           }
         })
@@ -49,103 +40,8 @@ function PostPage({loggedInUser, savedPosts, setSavedPosts, likeInstances, setLi
 
     })
 
-    //   likeInstances.map((eachLikeInstance)=>{
-    //   if(eachLikeInstance.post.id===thePost.id){
-    //     return(
-    //       setPostLiked(true)
-    //     )
-    //   }
-    // })
-
-
-
-    // const mappingToDetermineSavedButton=()=>{
-    //   if(usersWhoSaved.length>=1){
-    //     usersWhoSaved.map((eachUser)=>{
-    //       console.log("each saved of this specific post",eachUser)
-    //       console.log("their id",eachUser.id)
-    //       if(eachUser.user_id==loggedInUser.id){
-    //         setPostSavedByUser(true)
-    //       }
-    //     })
-    //   }
-    // }
-
-      
-
-    // usersWhoSaved.map((eachUser)=>{
-    //   if(eachUser.user_id==loggedInUser.id){
-    //     return(
-    //       setPostSavedByUser(true)
-    //     )
-    //   }
-    // })
-
-
   }, [])
-  //console.log(comments)
-  console.log("posts saved instances:", usersWhoSaved)
-  console.log("state of saved", postSavedByUser)
-  console.log("logged in id:", loggedInUser.id)
-
-  //mappingToDetermineSavedButton()
-
-
-  
-  const mappingOfComments = comments.map((eachComment)=>{
-    if(eachComment.commenter_id==loggedInUser.id){
-      //console.log("belongs to logged in user")
-      return(
-        <div key={eachComment.id}>
-          <p>{eachComment.commenter_id}</p>
-          <p>{eachComment.comment_content}</p>
-          <button>delete comment</button>
-        </div>
-      )
-    }else{
-      return(
-        <div key={eachComment.id}>
-          <p>{eachComment.commenter_id}</p>
-          <p>{eachComment.comment_content}</p>
-          <button>like comment</button>
-        </div>
-      )
-    }
-  })
-
-
-
-
-
-
-  const [commentToPost, setTheCommentToPost] = useState("")
-  const handleNewCommentChange=(synthEvent)=>{
-    setTheCommentToPost(synthEvent.target.value)
-  }
-  //console.log(commentToPost)
-
-  const handleNewCommentSubmit=(synthEvent)=>{
-      synthEvent.preventDefault()
-
-      fetch(`/comments`, {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({post_id:thePost.id, comment_content:commentToPost})
-        }
-      )
-      .then(response=>response.json())
-      .then(postedComment=>{
-          console.log(postedComment)
-          fetch(`/posts/${thePost.id}`)
-          .then(response=>response.json())
-          .then(thePostViewing=>{
-            console.log(thePostViewing)
-            setThePost(thePostViewing)
-            setComments(thePostViewing.comments)
-          })
-        }
-      )
-  }
+  console.log("Users who liked this post:", usersWhoLiked)
 
 
   const onPostSave=(synthEvent)=>{
@@ -191,53 +87,125 @@ function PostPage({loggedInUser, savedPosts, setSavedPosts, likeInstances, setLi
     })
   }
 
-  // const mappingToDetermineSavedButton=()=>{
-  //   if(usersWhoSaved.length>=1){
-  //     usersWhoSaved.map((eachUser)=>{
-  //       if(eachUser.user_id==loggedInUser.id){
-  //         setPostSavedByUser(true)
-  //         // return(
-  //         //   <button onClick={onPostUnSave} value={eachUser.save_id} key={eachUser.save_id}> ★ </button>
-  //         // )
-  //   //     }else{
-  //   //       // return(
-  //   //       //   <button onClick={onPostSave} > ☆ </button>
-  //   //       // )
-  //   //     }
-  //   //   })
-  //   // }else{
-  //   //   setPostSavedByUser(false)
-  //     // return(
-  //     //   <button onClick={onPostSave} > ☆ </button>
-  //     // )
-  //   }
-  
-  //   })}}
+  const onPostLike=(synthEvent)=>{
+    synthEvent.preventDefault()
+    setPostLiked(true)
+    fetch(` /post_likes`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({post_id:thePost.id})
+        }
+    )
+    .then(response=>response.json())
+    .then(theLikeInstance=>{
+        console.log("afterfetchfromclick:",theLikeInstance)
+        //setPostSaved(true)
+        fetch(`/user/${loggedInUserId}/liked`)
+        .then(response=>response.json())
+        .then(response=>{
+        console.log("response",response)
+            if(!response.error){
+                setLikeInstances(response)
+              }
+        })
+    })
+  }
+
+  const onPostUnLike=(synthEvent)=>{
+    synthEvent.preventDefault()
+    setPostLiked(false)
+    console.log(synthEvent.target.value)
+    const theIdWeFetch = synthEvent.target.value
+    fetch(`/post_likes/${theIdWeFetch}`, {method:'DELETE'})
+    .then(response=>response.json())
+    .then(message=>{
+        console.log(message)
+        //setPostSaved(false)
+        fetch(`/user/${loggedInUserId}/liked`)
+        .then(response=>response.json())
+        .then(response=>{
+        console.log("response",response)
+            if(!response.error){
+                setLikeInstances(response)
+                }
+            }
+        )
+    })
+  }
+
+
+  const mappingOfComments = comments.map((eachComment)=>{
+    if(eachComment.commenter_id==loggedInUser.id){
+      //console.log("belongs to logged in user")
+      return(
+        <div key={eachComment.id}>
+          <p>{eachComment.commenter}</p>
+          <p>{eachComment.comment_content}</p>
+          <button>delete comment</button>
+        </div>
+      )
+    }else{
+      return(
+        <div key={eachComment.id}>
+          <p>{eachComment.commenter}</p>
+          <p>{eachComment.comment_content}</p>
+          <button>like comment</button>
+        </div>
+      )
+    }
+  })
+
+  const [commentToPost, setTheCommentToPost] = useState("")
+  const handleNewCommentChange=(synthEvent)=>{
+    setTheCommentToPost(synthEvent.target.value)
+  }
+
+  const handleNewCommentSubmit=(synthEvent)=>{
+    synthEvent.preventDefault()
+    fetch(`/comments`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({post_id:thePost.id, comment_content:commentToPost})
+      }
+    )
+    .then(response=>response.json())
+    .then(postedComment=>{
+        console.log(postedComment)
+        fetch(`/posts/${thePost.id}`)
+        .then(response=>response.json())
+        .then(thePostViewing=>{
+          console.log(thePostViewing)
+          setThePost(thePostViewing)
+          setComments(thePostViewing.comments)
+        })
+      }
+    )
+  }
+
 
 
 
   return (
     <div>
 
-        {
-          //mappingToDetermineSavedButton(),
-          postSavedByUser===true?
+      {
+      
+        postSavedByUser===true
+      ?
 
 
         usersWhoSaved.map((eachUser)=>{
         if(eachUser.user_id==loggedInUser.id){
-          //setPostSavedByUser(true)
           return(
             <button onClick={onPostUnSave} value={eachUser.save_id} key={eachUser.save_id}> ★ </button>
-          )}})
-        
+          )}
+        })
+      
 
-        :
+      :
 
         <button onClick={onPostSave} > ☆ </button>
-        }
-
-        
+      }
 
       <h4>{thePost.title}</h4>
       <br/>
@@ -247,22 +215,23 @@ function PostPage({loggedInUser, savedPosts, setSavedPosts, likeInstances, setLi
       <span>{thePost.likes} likes</span>
       
 
+      {
+        postLiked==true
+      ?
 
+        usersWhoLiked.map((thePostLike)=>{
+          console.log(thePostLike.like_id)
+          if(thePostLike.user_id===loggedInUserId){
+            return(
+              <button onClick={onPostUnLike} value={thePostLike.like_id}> 💚 </button>
+            )
+          }
+        })
 
-        {
-        postLiked==true?
+      :
 
-        <button> 💚 </button>
-
-        :
-
-        <button> 🤍 </button>
-        }
-
-
-
-      <button> heart </button>
-
+        <button onClick={onPostLike}> 🤍 </button>
+      }
 
       <img src={thePost.img_url} alt=""/>
       <p>{thePost.content}</p>
@@ -270,23 +239,14 @@ function PostPage({loggedInUser, savedPosts, setSavedPosts, likeInstances, setLi
       <br/>
 
       <h4>comments:</h4>
-      {/* {mappingOfComments()} */}
-
-
+    
       {
-        comments.length==0?
+        comments.length==0
+      ?
         <><p>Be the first to comment!</p></>
-        :
+      :
         mappingOfComments
-
       }
-
-      {/* { comments.map((eachComment)=>{
-      console.log("inside map function",eachComment.comment_content)
-      return(
-        <p>{eachComment.comment_content}</p>
-      )
-    })} */}
 
       <form onSubmit={handleNewCommentSubmit}>
         <input 
@@ -295,8 +255,6 @@ function PostPage({loggedInUser, savedPosts, setSavedPosts, likeInstances, setLi
         />
         <button>Comment</button>
       </form>
-
-
 
     </div>
   )

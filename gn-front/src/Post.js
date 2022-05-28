@@ -1,18 +1,18 @@
 import React from 'react'
 import {useEffect, useState} from 'react'
 import {Link, Outlet} from 'react-router-dom'
-import PostPage from './PostPage'
-
-import {BrowserRouter, Route, Routes,} from 'react-router-dom'
 
 function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstances, loggedInUserId}) {
+
+    const likesForPosts = eachPost.users_who_liked
+    //console.log(likesForPosts)
 
     const [postLiked, setPostLiked]=useState(false)
     const [postSaved, setPostSaved]=useState(false)
 
     useEffect(()=>{
         likeInstances.map((eachLikeInstance)=>{
-            if(eachLikeInstance.post.id===eachPost.id){
+            if(eachLikeInstance.post_id===eachPost.id){
                 return(
                     setPostLiked(true)
                 )
@@ -32,6 +32,7 @@ function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstan
 
 
     const onPostSave=(synthEvent)=>{
+        synthEvent.preventDefault()
         setPostSaved(true)
         fetch(`/saved_posts`, {
             method: "POST",
@@ -55,7 +56,35 @@ function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstan
         })
     }
 
+
+    const onPostLike=(synthEvent)=>{
+        synthEvent.preventDefault()
+        setPostLiked(true)
+        fetch(` /post_likes`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({post_id:eachPost.id})
+            }
+        )
+        .then(response=>response.json())
+        .then(theLikeInstance=>{
+            console.log("afterfetchfromclick:",theLikeInstance)
+            //setPostSaved(true)
+            fetch(`/user/${loggedInUserId}/liked`)
+            .then(response=>response.json())
+            .then(response=>{
+            console.log("response",response)
+                if(!response.error){
+                    setLikeInstances(response)
+                    }
+                }
+            )
+        })
+    }
+
+
     const onPostUnSave=(synthEvent)=>{
+        synthEvent.preventDefault()
         setPostSaved(false)
         console.log(synthEvent.target.value)
         fetch(`/saved_posts/${synthEvent.target.value}`, {method:'DELETE'})
@@ -74,6 +103,28 @@ function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstan
         })
     }
     
+
+    const onPostUnLike=(synthEvent)=>{
+        synthEvent.preventDefault()
+       // setPostLiked(false)
+        console.log(synthEvent.target.value)
+        const theIdWeFetch = synthEvent.target.value
+        fetch(`/post_likes/${theIdWeFetch}`, {method:'DELETE'})
+        .then(response=>response.json())
+        .then(message=>{
+            console.log(message)
+            //setPostSaved(false)
+            fetch(`/user/${loggedInUserId}/liked`)
+            .then(response=>response.json())
+            .then(response=>{
+            console.log("response",response)
+                if(!response.error){
+                    setLikeInstances(response)
+                    }
+                }
+            )
+        })
+    }
 
 
 
@@ -108,17 +159,25 @@ function Post({eachPost, savedPosts, setSavedPosts, likeInstances, setLikeInstan
             
             <span>{eachPost.post_type}</span>
             <br/>
-            <span>{eachPost.likes} likes</span>
+            <span>{likesForPosts.length} likes</span>
 
 
             {
             postLiked==true?
 
-            <button> 💚 </button>
+
+            likeInstances.map((eachPostLike)=>{
+                if(eachPostLike.post_id===eachPost.id){
+                    return(
+                        <button onClick={onPostUnLike} value={eachPostLike.like_id}> 💚 </button>
+                        
+                    )
+                }
+            })
 
             :
 
-            <button> 🤍 </button>
+            <button onClick={onPostLike}> 🤍 </button>
             }
             
 

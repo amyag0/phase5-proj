@@ -51,6 +51,18 @@ class UsersController < ApplicationController
     end
 
 
+    def get_user_liked_posts
+        user_to_find = User.find_by(id: params[:id])
+        user_liked_posts = user_to_find.post_likes
+        if user_liked_posts
+            render json: user_liked_posts, each_serializer: PostLikeSerializer
+        else
+            render json: {error: user_liked_posts.errors.full_messages}
+        end
+        
+    end
+
+
     private
     def user_update_params
         params.permit(:name, :username, :email, :password, :bio)
